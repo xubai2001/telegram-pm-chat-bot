@@ -145,6 +145,8 @@ async def process_command(update: Update, context: CallbackContext):
 
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     init_user(update.message.from_user)
+    await context.bot.send_message(chat_id=update.message.chat_id,
+                         text=LANG['start'])
 
 async def ping(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await context.bot.send_message(
