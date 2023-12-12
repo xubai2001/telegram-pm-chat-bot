@@ -26,5 +26,7 @@
     "add_filter_word_alert": "Error adding filter word, specific message:\n%s",
     "no_filter_word_alert": "Incorrect format for adding filter word, correct format: /add word",
     "add_filter_word_successful": "Filter word [%s] added successfully!",
-    "has_same_filter_word": "The filter word list already contains this word!"
+    "has_same_filter_word": "The filter word list already contains this word!",
+    "delete_successful": "Filter word [%s] was deleted successfully!",
+    "delete_failed": "Filter word [%s] not found!"
 }

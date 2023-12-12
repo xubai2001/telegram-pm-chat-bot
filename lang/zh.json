@@ -24,7 +24,9 @@
     "ping_status": "此机器人正在运行",
     "filter_word_alert": "您使用了屏蔽词，请勿使用不当言语",
     "add_filter_word_alert": "添加屏蔽词出错,具体信息:\n%s",
-    "no_filter_word_alert": "添加屏蔽词格式错误, 正确格式: /add word",
+    "command_format_error_alert": "指令格式错误，请输入正确的格式！",
     "add_filter_word_successful": "添加屏蔽词[%s]成功！",
-    "has_same_filter_word": "屏蔽词列表中已包含该词！"
+    "has_same_filter_word": "屏蔽词列表中已包含该词！",
+    "delete_successful": "屏蔽词[%s]删除成功!",
+    "delete_failed": "屏蔽词[%s]未找到!"
 }

@@ -21,7 +21,7 @@ PATH = os.path.dirname(os.path.realpath(__file__)) + '/'
 MESSAGE_LOCK = threading.Lock()
 PREFERENCE_LOCK = threading.Lock()
 CONFIG_LOCK = threading.Lock()
-FILTER_FILE = threading.Lock()
+FILTER_LOCK = threading.Lock()
 
 logging.basicConfig(
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
@@ -52,6 +52,7 @@ def load_config(filename):
         config = json.load(fp)
     return config
 
+
 async def check_config(application: Application) -> None:
     """
     在bot启动时检测bot名称以及ID,保存进config.json
@@ -77,7 +78,7 @@ async def save_all_config(application: Application) -> None:
 
 
 def add_filter_words(word: str):
-    with FILTER_FILE:
+    with FILTER_LOCK:
         with open(f'{PATH}/filter_words.txt', 'r', encoding='utf-8') as fp:
             content = fp.read()
 
@@ -86,9 +87,25 @@ def add_filter_words(word: str):
         with open(f'{PATH}/filter_words.txt', 'w', encoding='utf-8') as fp:
             fp.write(new_content)
 
+def delete_filter_words(word: str) -> bool:
+    with FILTER_LOCK:
+        is_delete = False
+        with open(f'{PATH}/filter_words.txt', 'r', encoding='utf-8') as fp:
+            content = fp.readlines()
+
+        for line in content:
+            if line.strip() == word:
+                content.remove(line)
+                is_delete = True
+                break
+
+    with open(f'{PATH}/filter_words.txt', 'w', encoding='utf-8') as fp:
+        fp.writelines(content)
+    return is_delete
+
 
 def has_filter_words(message_text: str) -> bool:
-    with FILTER_FILE:
+    with FILTER_LOCK:
         with open(f'{PATH}/filter_words.txt', 'r', encoding="UTF-8") as fp:
             for line in fp:
                 word = line.strip()
@@ -175,7 +192,8 @@ async def process_msg(update: Update, context: CallbackContext):
                 chat_id=update.message.from_user.id,
                 text=LANG["filter_word_alert"]
             )
-            return
+                return
+        
         if preference_list[str(update.message.from_user.id)]['blocked']: # blocked用户只发送被block提示
             await context.bot.send_message(
                 chat_id=update.message.from_user.id,
@@ -188,9 +206,10 @@ async def process_msg(update: Update, context: CallbackContext):
                 from_chat_id = update.message.chat_id,
                 message_id = update.message.message_id
             )
-        # 消息id以及对应的用户id 存放到message_list
+        # 消息id以及对应的用户id 存放到message_list(此处message_id为bot转发给Admin的消息的id)
         message_list[str(fwd_msg.message_id)] = {}
         message_list[str(fwd_msg.message_id)]['sender_id'] = update.message.from_user.id
+        message_list[str(fwd_msg.message_id)]["original_id"] = update.message.message_id    # 增加保存其他用户发送的原始消息id
         threading.Thread(target=save_data).start()  # 保存消息数据
 
 
@@ -304,7 +323,6 @@ async def info(update: Update, context: ContextTypes.DEFAULT_TYPE):
             if str(reply_to_message.message_id) in message_list:
                 sender_id = message_list[str(reply_to_message.message_id)]["sender_id"]
                 send_text = f"[{preference_list[str(sender_id)]['name']}](tg://user?id={sender_id})"
-                print(send_text)
                 await context.bot.send_message(
                     chat_id=update.message.chat_id,
                     text=send_text,
@@ -315,7 +333,7 @@ async def info(update: Update, context: ContextTypes.DEFAULT_TYPE):
         await context.bot.send_message(
             chat_id=update.message.chat_id,
             text=LANG["not_an_admin"]
-        )    
+        )
 
 
 async def setadmin(update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -351,12 +369,77 @@ async def add(update: Update, context: ContextTypes.DEFAULT_TYPE):
         else:   # 未携带屏蔽词通知
             await context.bot.send_message(
                 chat_id=update.message.chat_id,
-                text=LANG["no_filter_word_alert"])
+                text=LANG["command_format_error_alert"])
 
     else:   # 若不是管理员发送该指令，不执行，并发送提示信息
         await context.bot.send_message(
             chat_id=update.message.chat_id,
             text=LANG["not_an_admin"])
+
+
+async def delete(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    """
+    删除消息发送者与bot的聊天信息、Admin与bot的消息，且清除message_list对应数据
+    """
+        
+    if update.message.chat_id == CONFIG['Admin']:  # 仅Admin可以执行
+        reply_to_message = update.message.reply_to_message
+        if reply_to_message:
+            # sender_id即要删除的消息的发送者的id
+            sender_id = message_list[str(reply_to_message.message_id)]["sender_id"]
+            if context.args:  # 指令携带信息，删除相同用户的所有信息
+                arg = context.args[0]
+                if arg == 'all':  # 例：/delete all 的情况，删除所有该用户的信息
+                    keys = list(message_list)
+                    for key in reversed(keys):  # key为message_id,此处从新往后删除，因为48小时外的消息不允许删除
+                        if message_list[key]["sender_id"] == sender_id: # 删除所有sender_id为指定用户的id
+                            # 删除并使用is_delete判断是否删除，若未删除成功，本地以及本对话都不删除
+                            is_delete = await context.bot.delete_message(
+                                chat_id=sender_id,
+                                message_id=message_list[key]["original_id"] # 这里使用原始消息id，先删除原始消息以判断是否能删除
+                            )
+                            if is_delete:   # 若能删除，则开始删除bot转发的消息，以及本地数据
+                                await context.bot.delete_message(
+                                    chat_id=reply_to_message.chat_id,
+                                    message_id=int(key) # 这里使用原始消息id，先删除原始消息以判断是否能删除
+                                )
+                                del message_list[key]
+                            else:   # 不能删除表示在这之前的消息均不能删除
+                                break
+                    await update.message.delete()
+
+                else:
+                    # 无法识别的情况
+                    await context.bot.send_message(
+                        chat_id=update.message.id,
+                        text=LANG["command_format_error_alert"]
+                    )
+
+            else:   # 若未携带信息，仅 /delete,则只删除回复的消息
+                original_message_id = message_list[str(reply_to_message.message_id)]["original_id"]
+                is_delete =await context.bot.delete_message(
+                    chat_id=sender_id,
+                    message_id=original_message_id
+                )
+                await reply_to_message.delete()
+                await update.message.delete()   
+                del message_list[str(reply_to_message.message_id)]
+            threading.Thread(target=save_data).start()
+
+
+        else:   # 若不是回复消息则删除屏蔽词
+            is_delete = delete_filter_words(context.args[0])
+            send_text = LANG["delete_successful"] % context.args[0] if is_delete else LANG["delete_failed"] % context.args[0]
+            await context.bot.send_message(
+                chat_id=update.message.chat_id,
+                text=send_text
+                )
+
+    else:
+        await context.bot.send_message(
+            chat_id=update.message.chat_id,
+            text=LANG["not_an_admin"]
+        )
 
 
 def main():
@@ -380,6 +463,7 @@ def main():
     info_handler = CommandHandler("info", info)
     setadmin_handler = CommandHandler("setadmin", setadmin)
     add_filter_word_handler = CommandHandler("add", add)
+    delete_handler = CommandHandler("delete", delete)
 
     app.add_handler(setadmin_handler)
     app.add_handler(start_handler)
@@ -388,6 +472,7 @@ def main():
     app.add_handler(unban_handler)
     app.add_handler(info_handler)
     app.add_handler(add_filter_word_handler)
+    app.add_handler(delete_handler)
     app.add_handler(process_msg_handler)
     
     app.run_polling()

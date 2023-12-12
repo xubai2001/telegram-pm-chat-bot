@@ -11,10 +11,10 @@ Telegram Private Message Chat Bot
 
 ### 安装准备 (Preparation)
 * 创建Telegram机器人，获取Token
-* 一台外面的服务器，安装好Python和pip，并用pip安装`python-telegram-bot==20.7`
+* 一台外面的服务器，安装好Python(Python3.8+)和pip，并用pip安装`python-telegram-bot==20.7`
 
 * Create a bot and get its token
-* Install Python and pip, then use pip to install `python-telegram-bot==20.7`
+* Install Python(Python3.8+) and pip, then use pip to install `python-telegram-bot==20.7`
 
 ### 配置 (Configuration)
 打开`config.json`并配置
@@ -87,7 +87,7 @@ Reply `/ban` to a message to block the sender of the message from sending messag
 
 Reply `unban` to a message or send `/unban <User ID>` to unban a user
 
-## 可用指令 (Available commands)
+## 可用指令,/unban以下为新增指令 (Available commands,/unban The following are new commands)
 | Command                   | 用途                   |
 | :---                      | :---                   |
 | /ping                     | 确认机器人是否正在运行   |
@@ -97,6 +97,8 @@ Reply `unban` to a message or send `/unban <User ID>` to unban a user
 | /ban                      | 封禁用户                |
 | /unban <数字ID (可选)>     | 解封用户                |
 | /add <屏蔽词>             | 添加屏蔽词                |
+| /delete <屏蔽词>          |   删除屏蔽词              |
+| /delete <all (可选)>(必须回复某条消息) | 删除一条所回复的消息或者所有该发送者的消息 |
 
 | Command                | Usage                                      |
 | :---                   | :---                                       |
@@ -107,4 +109,5 @@ Reply `unban` to a message or send `/unban <User ID>` to unban a user
 | /ban                   | Ban a user                                 |
 | /unban <ID (optional)> | Unban a user                               |
 | /add <filter_word>             | Add filter_word                |
-
+| /delete <filter_word>          |   Delete filter_word             |
+| /delete <all (optional)>(Must reply to a message) | Delete a reply message or all messages from the sender |
