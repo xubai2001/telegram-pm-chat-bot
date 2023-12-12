@@ -21,6 +21,7 @@ PATH = os.path.dirname(os.path.realpath(__file__)) + '/'
 MESSAGE_LOCK = threading.Lock()
 PREFERENCE_LOCK = threading.Lock()
 CONFIG_LOCK = threading.Lock()
+FILTER_FILE = threading.Lock()
 
 logging.basicConfig(
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
@@ -35,7 +36,7 @@ def save_data():  # 保存消息数据
 
 def save_preference():  # 保存用户资料与设置
     global PREFERENCE_LOCK
-    with MESSAGE_LOCK:
+    with PREFERENCE_LOCK:
         with open(PATH + 'preference.json', 'w', encoding="UTF-8") as fp:
             fp.write(json.dumps(preference_list))
 
@@ -45,10 +46,55 @@ def save_config():  # 保存配置
         with open(PATH + 'config.json', 'w', encoding="UTF-8") as fp:
             fp.write(json.dumps(CONFIG, indent=4))
 
-def load_config(PATH):
-    with open(PATH) as fp:
+
+def load_config(filename):
+    with open(f"{PATH}/{filename}", mode="r", encoding="UTF-8") as fp:
         config = json.load(fp)
     return config
+
+async def check_config(application: Application) -> None:
+    """
+    在bot启动时检测bot名称以及ID,保存进config.json
+    """
+    bot = await application.bot.get_me()
+    # 初始化bot信息
+    if "ID" not in CONFIG:
+        CONFIG["ID"] = bot.id
+    if "Username" not in CONFIG:
+        CONFIG["Username"] = bot.username
+    threading.Thread(target=save_config).start()
+
+
+async def save_all_config(application: Application) -> None:
+    """
+    统一保存所有配置文件
+    """
+    logging.info("Saving data....")
+    save_config()
+    save_data()
+    save_preference()
+    logging.info("Saving data successful!")
+
+
+def add_filter_words(word: str):
+    with FILTER_FILE:
+        with open(f'{PATH}/filter_words.txt', 'r', encoding='utf-8') as fp:
+            content = fp.read()
+
+        new_content = word + '\n' + content
+
+        with open(f'{PATH}/filter_words.txt', 'w', encoding='utf-8') as fp:
+            fp.write(new_content)
+
+
+def has_filter_words(message_text: str) -> bool:
+    with FILTER_FILE:
+        with open(f'{PATH}/filter_words.txt', 'r', encoding="UTF-8") as fp:
+            for line in fp:
+                word = line.strip()
+                if word in message_text:
+                    return True
+        return False
 
 
 def init_user(user):
@@ -122,14 +168,21 @@ async def process_msg(update: Update, context: CallbackContext):
                     chat_id=admin_id,
                     text=LANG["reply_to_no_message"]
                 )
-    else:
-        # 非Admin的消息
+    else:   # 非Admin的消息
+        if update.message.text:     # 若非Admin用户发送的是text格式消息，进行敏感词检测
+            if has_filter_words(update.message.text):
+                await context.bot.send_message(
+                chat_id=update.message.from_user.id,
+                text=LANG["filter_word_alert"]
+            )
+            return
         if preference_list[str(update.message.from_user.id)]['blocked']: # blocked用户只发送被block提示
             await context.bot.send_message(
                 chat_id=update.message.from_user.id,
                 text=LANG["be_blocked_alert"]
             )
             return
+        
         fwd_msg = await context.bot.forward_message(  # 转发消息
                 chat_id=admin_id,
                 from_chat_id = update.message.chat_id,
@@ -140,8 +193,7 @@ async def process_msg(update: Update, context: CallbackContext):
         message_list[str(fwd_msg.message_id)]['sender_id'] = update.message.from_user.id
         threading.Thread(target=save_data).start()  # 保存消息数据
 
-async def process_command(update: Update, context: CallbackContext): 
-    id = update.message.from_user.id
+
 
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     init_user(update.message.from_user)
@@ -277,31 +329,46 @@ async def setadmin(update: Update, context: ContextTypes.DEFAULT_TYPE):
                              text=LANG['set_admin_failed'])
     return
 
-async def check_config(application: Application) -> None:
-    bot = await application.bot.get_me()
-    # 初始化bot信息
-    if "ID" not in CONFIG:
-        CONFIG["ID"] = bot.id
-    if "Username" not in CONFIG:
-        CONFIG["Username"] = bot.username
-    threading.Thread(target=save_config).start()
 
-async def save_all_config(application: Application) -> None:
-    logging.info("Saving data....")
-    save_config()
-    save_data()
-    save_preference()
-    logging.info("Saving data successful!")
+async def add(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    if update.message.chat_id == CONFIG['Admin']:  # 仅Admin可以执行
+        if context.args:
+            if has_filter_words(context.args[0]): # 若已经有该屏蔽词
+                await context.bot.send_message(
+                    chat_id=update.message.chat_id,
+                    text= LANG["has_same_filter_word"])
+                return
+            try:
+                add_filter_words(context.args[0])
+            except Exception as e:
+                await context.bot.send_message( # 添加失败通知
+                    chat_id=update.message.chat_id,
+                    text= LANG["add_filter_word_alert"] % str(e))
+            await context.bot.send_message( # 添加成功通知
+                chat_id=update.message.chat_id,
+                text=LANG["add_filter_word_successful"] % context.args[0])
+            
+        else:   # 未携带屏蔽词通知
+            await context.bot.send_message(
+                chat_id=update.message.chat_id,
+                text=LANG["no_filter_word_alert"])
+
+    else:   # 若不是管理员发送该指令，不执行，并发送提示信息
+        await context.bot.send_message(
+            chat_id=update.message.chat_id,
+            text=LANG["not_an_admin"])
+
 
 def main():
     global CONFIG
     global message_list
     global preference_list
     global LANG
-    CONFIG = load_config(PATH + "config.json")
-    LANG = load_config(PATH + "lang/" + CONFIG["Lang"] + ".json")
-    message_list = load_config(PATH + "data.json")
-    preference_list = load_config(PATH + "preference.json")
+    global filter_words_list
+    CONFIG = load_config("config.json")
+    LANG = load_config("lang/" + CONFIG["Lang"] + ".json")
+    message_list = load_config("data.json")
+    preference_list = load_config("preference.json")
 
     app = ApplicationBuilder().token(CONFIG["Token"]).post_init(check_config).post_stop(save_all_config).build()
 
@@ -312,6 +379,7 @@ def main():
     unban_handler = CommandHandler("unban", unban)
     info_handler = CommandHandler("info", info)
     setadmin_handler = CommandHandler("setadmin", setadmin)
+    add_filter_word_handler = CommandHandler("add", add)
 
     app.add_handler(setadmin_handler)
     app.add_handler(start_handler)
@@ -319,6 +387,7 @@ def main():
     app.add_handler(ban_handler)
     app.add_handler(unban_handler)
     app.add_handler(info_handler)
+    app.add_handler(add_filter_word_handler)
     app.add_handler(process_msg_handler)
     
     app.run_polling()

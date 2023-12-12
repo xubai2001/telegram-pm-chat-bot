@@ -21,5 +21,10 @@
     "reply_or_enter_id": "请回复一条消息或输入被封禁者ID",
     "user_not_found": "无此用户",
     "be_unbanned": "您已被解除封禁",
-    "ping_status": "此机器人正在运行"
+    "ping_status": "此机器人正在运行",
+    "filter_word_alert": "您使用了屏蔽词，请勿使用不当言语",
+    "add_filter_word_alert": "添加屏蔽词出错,具体信息:\n%s",
+    "no_filter_word_alert": "添加屏蔽词格式错误, 正确格式: /add word",
+    "add_filter_word_successful": "添加屏蔽词[%s]成功！",
+    "has_same_filter_word": "屏蔽词列表中已包含该词！"
 }

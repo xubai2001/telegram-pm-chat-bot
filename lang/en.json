@@ -21,5 +21,10 @@
     "reply_or_enter_id": "Please reply to a message or enter the ID of the user who has been banned.",
     "user_not_found": "User not found.",
     "be_unbanned": "You have been unbanned.",
-    "ping_status": "This bot is running"
+    "ping_status": "This bot is running",
+    "filter_word_alert": "You have used filter word. Please refrain from using inappropriate language.",
+    "add_filter_word_alert": "Error adding filter word, specific message:\n%s",
+    "no_filter_word_alert": "Incorrect format for adding filter word, correct format: /add word",
+    "add_filter_word_successful": "Filter word [%s] added successfully!",
+    "has_same_filter_word": "The filter word list already contains this word!"
 }

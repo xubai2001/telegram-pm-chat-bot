@@ -1,4 +1,4 @@
-# 修改自Netrvin/telegram-pm-chat-bot | Modified from Netrvin/telegram-pm-chat-bot
+# 修改自[Netrvin/telegram-pm-chat-bot](https://github.com/Netrvin/telegram-pm-chat-bot) | Modified from Netrvin/telegram-pm-chat-bot
 
 Telegram 私聊机器人
 Telegram Private Message Chat Bot
@@ -96,6 +96,7 @@ Reply `unban` to a message or send `/unban <User ID>` to unban a user
 | /info                     | 查询用户身份            |
 | /ban                      | 封禁用户                |
 | /unban <数字ID (可选)>     | 解封用户                |
+| /add <屏蔽词>             | 添加屏蔽词                |
 
 | Command                | Usage                                      |
 | :---                   | :---                                       |
@@ -105,4 +106,5 @@ Reply `unban` to a message or send `/unban <User ID>` to unban a user
 | /info                  | Inquire sender identity                    |
 | /ban                   | Ban a user                                 |
 | /unban <ID (optional)> | Unban a user                               |
+| /add <filter_word>             | Add filter_word                |
 
