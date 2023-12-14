@@ -20,5 +20,13 @@
     "not_an_admin": "Anda Tidak Punya Izin.",
     "reply_or_enter_id": "Balas Ke Pesan  Atau Masukan User Id Yang Telah Di Blokir",
     "user_not_found": "User Tidak Ditemukan.",
-    "be_unbanned": "Blokir Anda Telah dibebaskan."
+    "be_unbanned": "Blokir Anda Telah dibebaskan.",
+    "ping_status": "Bot ini sedang beroperasi.",
+    "filter_word_alert": "Anda menggunakan perkataan yang disaring, sila jangan gunakan perkataan yang tidak sesuai.",
+    "add_filter_word_alert": "Ralat menambah perkataan yang disaring:\n%s",
+    "command_format_error_alert": "Ralat format arahan, sila masukkan format yang betul!",
+    "add_filter_word_successful": "Penambahan perkataan yang disaring [%s] berjaya!",
+    "has_same_filter_word": "Senarai perkataan yang disaring telah mengandungi perkataan ini!",
+    "delete_successful": "Penghapusan perkataan yang disaring [%s] berjaya!",
+    "delete_failed": "Perkataan yang disaring [%s] tidak dijumpai!"
 }

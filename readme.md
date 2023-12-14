@@ -44,9 +44,9 @@ Open `config.json` and configure
 If you didn't set admin's ID previously, the user who sends `/setadmin` to the bot first will become the admin. You can edit `config.json` to change admin later.
 
 ## 升级 (Upgrade)
-替换`main.py`和`lang`文件夹，重新运行即可
+替换除`data/`路径外的文件以及文件夹
 
-Replace `main.py` and folder `lang`, then run `main.py`
+Replace files and folders other than the `data/` path
 
 ## 运行 (Run)
 ```
@@ -65,18 +65,6 @@ Reply directly to the message forwarded by the robot to reply. You can reply tex
 
 You can reply `/info` to the message which you want to get its sender's info more clearly.
 
-### 消息发送提示 (Message sending notification)
-向机器人发送指令`/togglenotification`可开启/关闭消息发送提示
-
-效果：
-* 对管理员：回复用户后，如无出错则不会提示“已回复”
-* 对用户：发送消息后，机器人不会回复“已收到”
-
-Send the command `/togglenotification` to the bot to enable/disable the message sending notification
-
-Effect:
-* For admin: After replying to the user, if there is no error, it will not prompt "replied"
-* For users: After sending a message, the bot will not reply "received"
 
 ### 封禁与解禁 (Ban and unban)
 向一条消息回复`/ban`可禁止其发送者再次发送消息

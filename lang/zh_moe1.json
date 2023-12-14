@@ -20,5 +20,14 @@
     "not_an_admin": "不听不听，不是Master的话咱不听",
     "reply_or_enter_id": "诶？Master要解禁谁的说？",
     "user_not_found": "呐……咱没找到这个人的说::>_<::",
-    "be_unbanned": "那个……之前抱歉了……不过Master说我现在又可以和你玩了O(∩_∩)O"
+    "be_unbanned": "那个……之前抱歉了……不过Master说我现在又可以和你玩了O(∩_∩)O",
+    "ping_status": "(´･ω･`) 这个机器人正在运行喔！",
+    "filter_word_alert": "哇哦！您用了屏蔽词呢，请不要用不太好的话语哦~",
+    "add_filter_word_alert": "呜呜呜，添加屏蔽词出错啦，详情在这里：\n%s",
+    "command_format_error_alert": "诶嘿嘿~ 指令格式有点不对哦，请输入正确的格式呢！",
+    "add_filter_word_successful": "(*/ω＼*) 添加屏蔽词[%s]成功啦！",
+    "has_same_filter_word": "哇哦！这个词已经在屏蔽词列表中啦！",
+    "delete_successful": "(≧◡≦) 屏蔽词[%s]删除成功！",
+    "delete_failed": "(〃･ิ‿･ิ) 屏蔽词[%s]找不到啦！",
+    "unknown_command": "呜呜呜，暂不支持此指令，请使用正确的指令"
 }
