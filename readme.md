@@ -17,7 +17,7 @@ Telegram Private Message Chat Bot
 * Install Python(Python3.8+) and pip, then use pip to install `python-telegram-bot==20.7`
 
 ### 配置 (Configuration)
-打开`config.json`并配置
+重命名 `config-sample.json` 为 `config.json`
 ```json
 {
     "Admin": 0,
@@ -30,7 +30,7 @@ Telegram Private Message Chat Bot
 ```
 如果在前一步未设置管理员用户ID，第一个对机器人发送`/setadmin`的用户将成为管理员，之后可通过修改`config.json`修改管理员
 
-Open `config.json` and configure
+Rename `config-sample.json` to `config.json` and configure
 ```json
 {
     "Admin": 0,
