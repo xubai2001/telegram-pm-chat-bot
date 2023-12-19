@@ -1,3 +1,5 @@
+[English Version](README_EN.md)
+
 # 修改自[Netrvin/telegram-pm-chat-bot](https://github.com/Netrvin/telegram-pm-chat-bot)
 
 Telegram 私聊机器人

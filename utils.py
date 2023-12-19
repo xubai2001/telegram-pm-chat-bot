@@ -16,7 +16,7 @@ def save_data():
     Save the message list to a JSON file.
     """
     with MESSAGE_LOCK:
-        with open(PATH + 'data.json', 'w', encoding="UTF-8") as fp:
+        with open(PATH + '/data/data.json', 'w', encoding="UTF-8") as fp:
             fp.write(json.dumps(message_list))
 
 def save_preference():
@@ -24,7 +24,7 @@ def save_preference():
     Save the user preference list to a JSON file.
     """
     with PREFERENCE_LOCK:
-        with open(PATH + 'preference.json', 'w', encoding="UTF-8") as fp:
+        with open(PATH + '/data/preference.json', 'w', encoding="UTF-8") as fp:
             fp.write(json.dumps(preference_list))
 
 def save_config():
@@ -32,7 +32,7 @@ def save_config():
     Save the config to a JSON file.
     """
     with CONFIG_LOCK:
-        with open(PATH + 'config.json', 'w', encoding="UTF-8") as fp:
+        with open(PATH + '/data/config.json', 'w', encoding="UTF-8") as fp:
             fp.write(json.dumps(CONFIG, indent=4))
 
 
@@ -56,6 +56,9 @@ async def check_config(application: Application) -> None:
     if "Username" not in CONFIG:
         CONFIG["Username"] = bot.username
     threading.Thread(target=save_config).start()
+    await application.bot.set_my_description(
+        description=LANG["bot_description"]
+    )
 
 
 async def save_all_config(application: Application) -> None:
@@ -156,6 +159,8 @@ def init_user(user):
         threading.Thread(target=save_preference).start()
 
 PATH = os.path.dirname(os.path.realpath(__file__))
+
+
 MESSAGE_LOCK = threading.Lock()
 PREFERENCE_LOCK = threading.Lock()
 CONFIG_LOCK = threading.Lock()

@@ -1,5 +1,5 @@
 {
-    "start": "Welcome to use this bot. All your messages sent to me will be forwarder to the admin.\nEnter command /togglenotification can toggle message sending notification status, off by default.",
+    "start": "Welcome to use this bot. All your messages sent to me will be forwarder to the admin.\nEnter Command /ping can check if the bot is online.",
     "set_admin_successful": "You have been set as the admin successfully.",
     "set_admin_failed": "Set admin failed,The Bot has set up an administrator. Please edit config.json to edit it manually.",
     "togglenotification_on": "Enabled message sending notification. The bot will give a feedback when it receives your message.",
@@ -28,5 +28,6 @@
     "add_filter_word_successful": "Filter word [%s] added successfully!",
     "has_same_filter_word": "The filter word list already contains this word!",
     "delete_successful": "Filter word [%s] was deleted successfully!",
-    "delete_failed": "Filter word [%s] not found!"
+    "delete_failed": "Filter word [%s] not found!",
+    "bot_description": "You can use me to send messages to the admin."
 }
