@@ -6,6 +6,7 @@ from telegram.ext import (
         ContextTypes,
         CallbackContext
         )
+from telegram.helpers import escape_markdown
 from utils import *
 
 async def process_msg(update: Update, context: CallbackContext):
@@ -66,7 +67,7 @@ async def handle_admin_reply(update: Update, context: CallbackContext, reply_id:
                     kwargs[reply_type] = message_content[0] # 要取第
                 elif reply_type == "text_markdown":
                     kwargs["parse_mode"] = ParseMode.MARKDOWN_V2
-                    kwargs["text"] = kwargs.pop(reply_type) # text_markdown类型的消息，发送要用text=xxxx
+                    kwargs["text"] = escape_markdown(kwargs.pop(reply_type), version=2) # text_markdown类型的消息，发送要用text=xxxx
                 else:
                     kwargs[reply_type] = message_content    # 不同消息类型，参数列表不一样
                 await handler(**kwargs)     # 处理好参数列表后调用发送函数
